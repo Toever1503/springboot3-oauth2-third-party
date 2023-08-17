@@ -1,14 +1,18 @@
 package oauth2.common.oauth2;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Service
@@ -31,7 +35,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         }
         else if (userRequest.getClientRegistration().getClientName().equals("github")) {
-
+            userCustom = getUserPropertiesForGithub(oAuth2User);
         }
         else if (userRequest.getClientRegistration().getClientName().equals("amazon")) {
 
@@ -53,9 +57,25 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         return oAuth2User;
     }
 
-    private OAuth2UserCustom getUserPropertiesForGoogle(OAuth2User oAuth2User) {
-        return null;
+
+    public AuthenticationSuccessHandler onLoginSuccess() {
+        return ((request, response, authentication) -> {
+
+            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+
+            String id = defaultOAuth2User.getAttributes().get("id").toString();
+            String body = """
+                    {"id":"%s"}
+                    """.formatted(id);
+
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+            PrintWriter writer = response.getWriter();
+            writer.println(body);
+        });
     }
+
 
     private OAuth2UserCustom getUserPropertiesForKakao(OAuth2User oAuth2User) {
         Assert.notNull(oAuth2User.getAttribute("id"), "kakal's id");
@@ -74,6 +94,23 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         Assert.notNull(naverRes.get("id"), "naver's id");
         Assert.notNull(naverRes.get("nickname"), "naver's nickname");
         Assert.notNull(naverRes.get("email"), "naver's email");
+        return OAuth2UserCustom
+                .builder()
+                .id(naverRes.get("id"))
+                .name(naverRes.get("nickname"))
+                .email(naverRes.get("email"))
+                .build();
+    }
+
+    private OAuth2UserCustom getUserPropertiesForGoogle(OAuth2User oAuth2User) {
+        return null;
+    }
+
+    private OAuth2UserCustom getUserPropertiesForGithub(OAuth2User oAuth2User) {
+        Map<String, String> naverRes = oAuth2User.getAttribute("response");
+        Assert.notNull(oAuth2User.getAttribute("id"), "naver's id");
+        Assert.notNull(oAuth2User.getAttribute("nickname"), "naver's nickname");
+        Assert.notNull(oAuth2User.getAttribute("email"), "naver's email");
         return OAuth2UserCustom
                 .builder()
                 .id(naverRes.get("id"))
