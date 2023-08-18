@@ -31,6 +31,9 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	// https://mvnrepository.com/artifact/org.json/json
+	implementation("org.json:json:20230618")
+
 }
 
 tasks.withType<Test> {
