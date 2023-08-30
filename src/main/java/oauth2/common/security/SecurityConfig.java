@@ -31,7 +31,7 @@ public class SecurityConfig {
                 oauth2Configurer ->
                         oauth2Configurer
                                 .loginPage("/login")
-                                .successHandler(oAuth2UserService.onLoginSuccess())
+//                                .successHandler(oAuth2UserService.onLoginSuccess())
                                 .userInfoEndpoint((t) ->  t.userService(oAuth2UserService))
 //                .userService(oAuth2UserService)
         );

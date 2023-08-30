@@ -3,6 +3,7 @@ package oauth2.common.oauth2;
 import org.springframework.http.*;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -64,25 +65,24 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         /*
            we can handle save user to database at her
          */
-        return oAuth2User;
+        return userCustom;
     }
 
 
     public AuthenticationSuccessHandler onLoginSuccess() {
         return ((request, response, authentication) -> {
 
-            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            OAuth2User defaultOAuth2User = (OAuth2User) authentication.getPrincipal();
 
-            String id = defaultOAuth2User.getAttributes().get("id").toString();
-            String body = """
-                    {"id":"%s"}
-                    """.formatted(id);
+//            String body = """
+//                    {"id":"%s"}
+//                    """.formatted(id);
+//
+//            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-
-            PrintWriter writer = response.getWriter();
-            writer.println(body);
+//            PrintWriter writer = response.getWriter();
+            System.out.println("login oauth2 ok");
         });
     }
 
@@ -112,7 +112,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private OAuth2UserCustom getUserPropertiesForGoogle(OAuth2User oAuth2User) {
-        return null;
+        return OAuth2UserCustom
+                .builder()
+                .id(Objects.requireNonNull(oAuth2User.getAttribute("sub"), "Google's id"))
+                .name(Objects.requireNonNull(oAuth2User.getAttribute("name"), "Google's  name"))
+                .email(Objects.requireNonNull(oAuth2User.getAttribute("email"), "Google's email"))
+                .build();
     }
 
     private OAuth2UserCustom getUserPropertiesForGithub(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
