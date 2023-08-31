@@ -33,7 +33,14 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+        OAuth2User oAuth2User = null;
+
+        try {
+            oAuth2User = super.loadUser(userRequest);
+        }
+        catch (Exception ex){
+            throw ex;
+        }
 
         // Role generate
         OAuth2UserCustom userCustom = OAuth2UserCustom.builder().build();
@@ -50,7 +57,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         } else if (userRequest.getClientRegistration().getClientName().equals("github")) {
             userCustom = getUserPropertiesForGithub(userRequest, oAuth2User);
         } else if (userRequest.getClientRegistration().getClientName().equals("amazon")) {
-
+            userCustom = getUserPropertiesForAmazon(oAuth2User);
         } else if (userRequest.getClientRegistration().getClientName().equals("linkedin")) {
 
         } else if (userRequest.getClientRegistration().getClientName().equals("twitter")) {
@@ -144,6 +151,14 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 .id(Objects.requireNonNull(oAuth2User.getAttribute("id"), "Github's id").toString())
                 .name(Objects.requireNonNull(oAuth2User.getAttribute("login"), "Github's login name"))
                 .email(Objects.requireNonNull(email, "Github's email"))
+                .build();
+    }
+    private OAuth2UserCustom getUserPropertiesForAmazon(OAuth2User oAuth2User) {
+        return OAuth2UserCustom
+                .builder()
+                .id(Objects.requireNonNull(oAuth2User.getAttribute("user_id"), "Amazon's id").toString())
+                .name(Objects.requireNonNull(oAuth2User.getAttribute("name"), "Amazon's login name"))
+                .email(Objects.requireNonNull(oAuth2User.getAttribute("email"), "Amazon's email"))
                 .build();
     }
 }
