@@ -1,5 +1,9 @@
 package oauth2.resources;
 
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("admin")
 public class TestResource {
 
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    public TestResource(){
+        logger.info("fsfsf");
+    }
     @GetMapping("/test")
     public String test() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

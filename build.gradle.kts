@@ -31,9 +31,16 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	implementation("org.springframework.boot:spring-boot-starter-log4j2")
 	// https://mvnrepository.com/artifact/org.json/json
 	implementation("org.json:json:20230618")
 
+}
+
+configurations {
+	all {
+		exclude("org.springframework.boot", "spring-boot-starter-logging")
+	}
 }
 
 tasks.withType<Test> {
